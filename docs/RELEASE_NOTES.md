@@ -1,7 +1,10 @@
-# XViewer 0.2.1 — Page Wing branding
+# XViewer 0.3.0 - Document tabs
 
-- Applies the selected Page Wing logo to the Windows application, installer, uninstaller, reader header, organization toolbar, welcome screen, and README.
-- Adds transparent PNG, multi-resolution Windows ICO, and macOS ICNS assets.
-- Preserves the approved concept and generation prompts with a repeatable icon-conversion script.
+- Opens multiple PDFs in visible, scrollable tabs, including files selected together in the Open dialog or launched from Windows.
+- Keeps each document's current page when switching tabs. Edits remain in the workspace while switching.
+- Adds individual close buttons, Ctrl+W to close the current PDF, and Ctrl+Tab / Ctrl+Shift+Tab to switch documents.
+- Shows tabs in the reader and organizer. Arrow keys, Home, and End navigate focused tabs.
+- Opens PDFs dropped onto the reader in separate tabs.
+- Warns before closing a PDF with annotations, signatures, or form edits.
 
-Reader navigation, printing, image signatures, OCR, and redaction retain the 0.2.0 behavior. The installer remains an unsigned Windows preview. Save/export before closing; workspace recovery remains deferred.
+The installer is an unsigned Windows preview. Workspace recovery remains deferred; save a copy before closing the application.

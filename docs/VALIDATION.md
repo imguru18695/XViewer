@@ -28,3 +28,15 @@ This establishes the tested fixture workflows, not comprehensive compatibility w
 - Reader and signature screenshots are visually reviewed, including an 800px-wide window.
 
 Physical printer behavior and hardware-specific dialog settings still require manual testing. The print path uses 150-DPI rendered pages rather than preserving PDF vectors.
+
+## Document tabs verification (0.3.0)
+
+- Startup with two PDF paths opens both documents as tabs and enters the reader.
+- Open dialog checks cover adding another PDF and opening a three-file batch from an empty workspace.
+- Tab clicks, arrow keys, Ctrl+Tab, and Ctrl+Shift+Tab preserve each document's current page.
+- Added text stays with its document across switches. Canceling an edited document's close preserves the tab.
+- Closing a background tab to the left preserves the active document and page; closing the active or final tab selects a neighbor or returns to the empty workspace.
+- Reader file drops open separate documents. An 800px-wide window retains accessible scrollable tabs.
+- These checks run in `scripts/tabs-smoke.mjs` as part of `npm run smoke` and Windows CI.
+
+The 0.3.0 tab and existing reader suites passed against both the development build and the packaged Windows executable. All seven PDF regression tests and production type checks passed. The x64 NSIS installer was generated; it remains unsigned.

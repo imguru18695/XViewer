@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { computeLayout } from './canvas/layout'
 import { Toolbar } from './components/Toolbar'
+import { DocumentTabs } from './components/DocumentTabs'
 import { FullView } from './components/FullView'
 import { CollectionCanvas } from './components/CollectionCanvas'
 import type { CanvasHandle } from './components/Canvas'
@@ -51,8 +52,64 @@ export default function App(): React.JSX.Element {
   const formState = useFormValues()
   const elementState = useElements(undoStack.push)
   const collection = useCollection(flash, undoStack.push)
-  const fullViewState = useFullView()
   const docs = collection.docs
+  const fullViewState = useFullView(docs)
+  const activeDocId =
+    docs.find((d) => d.pages.some((p) => p.id === fullViewState.hiddenPageId))?.id ??
+    fullViewState.fullView?.docId ??
+    docs[0]?.id ??
+    ''
+  const closeDocument = (id: string) => {
+    if (busy) return
+    const index = docs.findIndex((d) => d.id === id)
+    const doc = docs[index]
+    if (!doc) return
+    const edited = doc.pages.some(
+      (p) =>
+        markState.marks[p.id]?.length ||
+        elementState.elements[p.id]?.length ||
+        Object.keys(formState.values[p.source.id] ?? {}).length
+    )
+    if (
+      edited &&
+      !window.confirm(
+        `Close ${doc.name}? Unsaved edits will be discarded. Save a copy first to keep them.`
+      )
+    )
+      return
+    if (id === activeDocId) {
+      const next = docs[index + 1] ?? docs[index - 1]
+      if (next) fullViewState.activateDocument(next.id)
+      else fullViewState.closeFullView()
+    }
+    if (id !== activeDocId && fullViewState.fullView) fullViewState.activateDocument(activeDocId)
+    collection.removeDoc(id)
+  }
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || !docs.length || busy) return
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        const index = docs.findIndex((d) => d.id === activeDocId)
+        fullViewState.activateDocument(
+          docs[(index + (event.shiftKey ? docs.length - 1 : 1)) % docs.length].id
+        )
+      } else if (event.key.toLowerCase() === 'w') {
+        event.preventDefault()
+        closeDocument(activeDocId)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+  const documentTabs = (
+    <DocumentTabs
+      docs={docs}
+      activeId={activeDocId}
+      onSelect={fullViewState.activateDocument}
+      onClose={closeDocument}
+    />
+  )
   const layout = useMemo(() => computeLayout(docs), [docs])
 
   const searchIndex = useSearchIndex(docs, elementState.elements)
@@ -206,6 +263,7 @@ export default function App(): React.JSX.Element {
           onDrop={drag.handlers.onDrop}
         >
           <Toolbar
+            documentTabs={!fullViewState.fullView && docs.length ? documentTabs : null}
             documentCount={docs.length}
             pageCount={totalPages}
             busy={busy}
@@ -289,10 +347,12 @@ export default function App(): React.JSX.Element {
 
           {fullView && fullViewDoc && (
             <FullView
-              key={`${fullView.docId}:${fullView.pageId}`}
+              documentTabs={documentTabs}
+              onOpenFiles={addFiles}
+              key={`${fullViewState.viewKey}:${docs.map((d) => d.id).join(',')}`}
               docs={docs}
-              startDocId={fullView.docId}
-              startPageId={fullView.pageId}
+              startDocId={activeDocId}
+              startPageId={fullViewState.hiddenPageId ?? fullView.pageId}
               originRect={fullView.originRect}
               marks={markState.marks}
               onToggleMark={markState.toggleMark}

@@ -8,7 +8,7 @@ Built on [PDFx](https://github.com/AlexandrosGounis/pdfx) by Alex Gounis. XViewe
 
 ## Getting started
 
-Download the Windows setup executable from [Releases](https://github.com/imguru18695/XViewer/releases). Install and launch XViewer, then choose **Open documents** or drag PDFs into the window. Use **Ctrl+O** to open and **Ctrl+F** to search. In File Explorer choose **Open with → XViewer**. Windows Default apps lets you select it as your preferred PDF application.
+Download the Windows setup executable from [Releases](https://github.com/imguru18695/XViewer/releases). Install and launch XViewer, then choose **Open documents** or drag PDFs into the window. Use **Ctrl+O** to open one or several PDFs and **Ctrl+F** to search. Switch documents with the tabs or **Ctrl+Tab**; close a PDF with its tab close button or **Ctrl+W**. In File Explorer choose **Open with → XViewer**. Windows Default apps lets you select it as your preferred PDF application.
 
 Opening a PDF starts in the reader. Use **Page Up/Page Down**, **Home/End**, the page-number box, or thumbnails to navigate. **Fit Page**, **Fit Width**, and zoom controls are in the bottom bar. Select text to copy it. Search with **Ctrl+F**, then **Enter/Shift+Enter** to move between matching pages.
 
@@ -53,6 +53,7 @@ Installers appear in `dist/`. After `npm run build`, run `npm run smoke` to laun
 ## XViewer contributions
 
 - Separate Windows app identity, per-user installer, and PDF associations.
+- Multiple PDF tabs with per-document page memory, close buttons, and Ctrl+Tab / Ctrl+Shift+Tab / Ctrl+W shortcuts.
 - Reader-first interface with keyboard navigation, page thumbnails, fit controls, and text selection.
 - Local signature-image editing and PDF embedding, with undo/redo.
 - Native print-dialog integration using the edited PDF, with isolated print rendering.
@@ -68,3 +69,5 @@ The [Page Wing branding assets and prompts](assets/branding/README.md) are inclu
 ## License
 
 MIT. Upstream copyright remains with Alex Gounis; see [LICENSE](LICENSE) and [NOTICE](NOTICE). Dependencies retain their own licenses.
+
+![Multiple document tabs](docs/screenshots/tabs.png)

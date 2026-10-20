@@ -295,7 +295,7 @@ try {
   )
   await page.getByPlaceholder('Search', { exact: true }).fill('')
   await page.keyboard.press('Escape')
-  await page.getByLabel('Document', { exact: true }).selectOption('0')
+  await page.getByRole('tab', { name: 'Welcome to XViewer', exact: true }).click()
   await page.getByRole('button', { name: 'Close (Esc)', exact: true }).click()
   await page.locator('.full-view').waitFor({ state: 'detached' })
   console.log('Closed reader after OCR; reopening first page')

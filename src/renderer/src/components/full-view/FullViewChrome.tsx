@@ -4,9 +4,8 @@ import { AppBrand } from '../AppBrand'
 import type { EditTool } from '../../edit/types'
 
 interface Props {
+  documentTabs: React.ReactNode
   chromeOpacity: number
-  docName: string
-  docNames: string[]
   docIndex: number
   pi: number
   pageCount: number
@@ -22,7 +21,6 @@ interface Props {
   onToggleTool: (tool: EditTool) => void
   runClose: () => void
   goToPage: (index: number) => void
-  goToDocument: (index: number) => void
   onZoom: (direction: -1 | 1) => void
   onFitPage: () => void
   onFitWidth: () => void
@@ -51,18 +49,7 @@ export function FullViewChrome(p: Props): React.JSX.Element {
         <button className="btn glass" onClick={p.onOpen} disabled={p.busy}>
           Open
         </button>
-        <select
-          aria-label="Document"
-          value={p.docIndex}
-          onChange={(e) => p.goToDocument(Number(e.target.value))}
-        >
-          {p.docNames.map((name, index) => (
-            <option key={index} value={index}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <div className="toolbar-spacer" />
+        {p.documentTabs}
         <button className="btn glass" onClick={p.onFind} title="Find text (Ctrl+F)">
           Find
         </button>

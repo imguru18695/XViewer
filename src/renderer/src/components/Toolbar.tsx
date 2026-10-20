@@ -5,6 +5,7 @@ import { BoltIcon, GitHubIcon } from './icons'
 import { AppBrand } from './AppBrand'
 
 interface ToolbarProps {
+  documentTabs?: React.ReactNode
   documentCount: number
   pageCount: number
   busy: boolean
@@ -25,6 +26,7 @@ interface ToolbarProps {
 const isMac = window.api.platform === 'darwin'
 
 export function Toolbar({
+  documentTabs,
   documentCount,
   pageCount,
   busy,
@@ -48,14 +50,14 @@ export function Toolbar({
       <button className="btn glass" onClick={onOpen} disabled={busy}>
         Open
       </button>
-      {documentCount > 0 && (
+      {!documentTabs && documentCount > 0 && (
         <div className="toolbar-meta">
           {documentCount} {documentCount === 1 ? 'document' : 'documents'}
           <span className="dot">·</span>
           {pageCount} {pageCount === 1 ? 'page' : 'pages'}
         </div>
       )}
-      <div className="toolbar-spacer" />
+      {documentTabs || <div className="toolbar-spacer" />}
       <button className="btn glass" onClick={onRead} disabled={busy || documentCount === 0}>
         Read PDF
       </button>

@@ -20,6 +20,7 @@ export function useImport(
       if (files.length === 0) return
       setBusy(true)
       const failed: string[] = []
+      let first: { docId: string; pageId: string } | undefined
       for (const file of files) {
         try {
           const conv = findConverter(file.name, file.data)
@@ -29,13 +30,14 @@ export function useImport(
             : file.data
           const entries = await importIntoDocs(name, data)
           setDocs((prev) => [...prev, ...dedupeNames(prev, entries)])
-          if (files.length === 1 && entries[0]?.pages[0])
-            onOpenDocument?.(entries[0].id, entries[0].pages[0].id)
+          if (!first && entries[0]?.pages[0])
+            first = { docId: entries[0].id, pageId: entries[0].pages[0].id }
         } catch (error) {
           console.error(`Failed to import ${file.name}`, error)
           failed.push(file.name)
         }
       }
+      if (first) onOpenDocument?.(first.docId, first.pageId)
       setBusy(false)
       if (failed.length > 0) flash(`Could not open ${failed.join(', ')}`)
     },

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import type { IncomingFile } from '../app/types'
+import { isDroppableFile } from '../app/drop-items'
 import type { DocEntry } from '../types'
 import type { MarkKind, MarkMap, MarkRect } from '../edit/types'
 import { isMarkTool } from '../edit/types'
@@ -26,6 +28,8 @@ import { FullViewChrome } from './full-view/FullViewChrome'
 import { FullViewPages } from './full-view/FullViewPages'
 
 interface FullViewProps {
+  documentTabs: React.ReactNode
+  onOpenFiles: (files: IncomingFile[]) => Promise<void>
   docs: DocEntry[]
   startDocId: string
   startPageId: string
@@ -182,7 +186,51 @@ export function FullView({
   const chromeOpacity = s.revealed ? 1 : 0
 
   return (
-    <div className="full-view" role="dialog" aria-label="PDF page editor" data-phase={s.phase}>
+    <div
+      className="full-view"
+      role="dialog"
+      aria-label="PDF page editor"
+      data-phase={s.phase}
+      onDragEnter={(e) => {
+        if (e.dataTransfer.types.includes('Files')) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }}
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes('Files')) {
+          e.preventDefault()
+          e.stopPropagation()
+          e.dataTransfer.dropEffect = extra.busy ? 'none' : 'copy'
+        }
+      }}
+      onDrop={(e) => {
+        if (!e.dataTransfer.types.includes('Files')) return
+        e.preventDefault()
+        e.stopPropagation()
+        if (extra.busy) return
+        const files = Array.from(e.dataTransfer.files)
+        const paths = files.map((f) => window.api.getPathForFile(f))
+        void (async () => {
+          try {
+            const incoming =
+              paths.length && paths.every(Boolean)
+                ? await window.api.expandDropPaths(paths)
+                : await Promise.all(
+                    files
+                      .filter((f) => isDroppableFile(f.name, f.type))
+                      .map(async (f) => ({
+                        name: f.name,
+                        data: new Uint8Array(await f.arrayBuffer())
+                      }))
+                  )
+            await extra.onOpenFiles(incoming)
+          } catch {
+            extra.flash('Could not open dropped files')
+          }
+        })()
+      }}
+    >
       <div className="full-backdrop" style={{ opacity: chromeOpacity }} />
       <FullViewPages
         scrollRef={s.scrollRef}
@@ -318,9 +366,8 @@ export function FullView({
         </section>
       )}
       <FullViewChrome
+        documentTabs={extra.documentTabs}
         chromeOpacity={chromeOpacity}
-        docName={s.doc.name}
-        docNames={docs.map((d) => d.name)}
         docIndex={s.di}
         pi={s.pi}
         pageCount={s.doc.pages.length}
@@ -336,7 +383,6 @@ export function FullView({
         }}
         runClose={controls.runClose}
         goToPage={controls.goToPage}
-        goToDocument={controls.goToDocument}
         busy={extra.busy}
         zoom={(s.fit.w / s.page.width) * s.view.zoom}
         thumbnails={thumbnails}
