@@ -6,7 +6,7 @@ Built on [PDFx](https://github.com/AlexandrosGounis/pdfx) by Alex Gounis. XViewe
 
 ## Getting started
 
-Download the Windows setup executable from [Releases](https://github.com/imguru18695/XViewer/releases), when available. Install and launch XViewer, then choose **Open documents** or drag PDFs into the window. Use **Ctrl+O** to open and **Ctrl+F** to search. In File Explorer choose **Open with → XViewer**. Windows Default apps lets you select it as your preferred PDF application.
+Download the Windows setup executable from [Releases](https://github.com/imguru18695/XViewer/releases). Install and launch XViewer, then choose **Open documents** or drag PDFs into the window. Use **Ctrl+O** to open and **Ctrl+F** to search. In File Explorer choose **Open with → XViewer**. Windows Default apps lets you select it as your preferred PDF application.
 
 Double-click a page for full view. Choose **Edit** to highlight, draw a signature, add text, or redact text. Choose **Done**, then **Export PDF** to save a new document. Source files are not automatically overwritten. Export before closing: the workspace does not autosave.
 
