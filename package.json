@@ -1,12 +1,13 @@
 {
   "name": "xviewer",
   "productName": "XViewer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A local desktop PDF workspace for viewing, organizing, annotating, OCR search, and redaction",
   "main": "./out/main/index.js",
   "author": "imguru18695",
   "license": "MIT",
   "scripts": {
+    "brand:icons": "node scripts/build-brand-icons.mjs",
     "format": "prettier --write .",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CloseIcon } from '../icons'
+import { AppBrand } from '../AppBrand'
 import type { EditTool } from '../../edit/types'
 
 interface Props {
@@ -46,7 +47,7 @@ export function FullViewChrome(p: Props): React.JSX.Element {
   return (
     <div className="full-chrome" style={{ opacity: p.chromeOpacity }}>
       <header className="full-bar reader-header">
-        <strong className="reader-brand">XViewer</strong>
+        <AppBrand className="reader-brand" />
         <button className="btn glass" onClick={p.onOpen} disabled={p.busy}>
           Open
         </button>

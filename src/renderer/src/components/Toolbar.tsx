@@ -2,6 +2,7 @@ import { isWeb } from '../platform/web/install'
 import { useGitHubStars } from '../app/useGitHubStars'
 import { FeatureHeaderActions } from '../features/HeaderActions'
 import { BoltIcon, GitHubIcon } from './icons'
+import { AppBrand } from './AppBrand'
 
 interface ToolbarProps {
   documentCount: number
@@ -43,6 +44,7 @@ export function Toolbar({
   const stars = useGitHubStars(isWeb ? 'imguru18695/XViewer' : null)
   return (
     <header className={`toolbar${isMac ? ' mac' : ''}`}>
+      <AppBrand size={28} wordmark={false} />
       <button className="btn glass" onClick={onOpen} disabled={busy}>
         Open
       </button>

@@ -56,6 +56,10 @@ try {
     if (message.type() === 'error' || message.type() === 'warning') console.log(message.text())
   })
   await page.locator('.full-view[data-phase="open"]').waitFor({ timeout: 30000 })
+  await page.waitForFunction(() => {
+    const logo = document.querySelector('.reader-brand img')
+    return logo?.complete && logo.naturalWidth > 0
+  })
   await page.waitForFunction(() =>
     [...document.querySelectorAll('.full-page canvas')].some((c) => c.width > 100)
   )

@@ -1024,6 +1024,15 @@ a.btn {
   height: 64px;
   pointer-events: auto;
 }
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.app-brand img {
+  object-fit: contain;
+}
 .reader-brand {
   font-size: 17px;
   letter-spacing: -0.4px;
@@ -1216,7 +1225,7 @@ a.btn {
   .reader-header {
     gap: 5px;
   }
-  .reader-brand {
+  .reader-brand .brand-wordmark {
     display: none;
   }
   .reader-tools {

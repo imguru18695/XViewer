@@ -1,5 +1,6 @@
 appId: io.github.imguru18695.xviewer
 productName: XViewer
+icon: build/page-wing.png
 directories:
   buildResources: build
 files:
@@ -23,6 +24,8 @@ files:
 asarUnpack:
   - native/build/Release/*.node
 extraResources:
+  - from: build/page-wing.png
+    to: page-wing.png
   - from: resources/ocr
     to: ocr
   - from: resources/pdf
@@ -39,8 +42,10 @@ fileAssociations:
     mimeType: application/x-pdfx
     role: Viewer
 mac:
+  icon: build/page-wing.icns
   category: public.app-category.productivity
 win:
+  icon: build/page-wing.ico
   target:
     - target: nsis
       arch: [x64]
@@ -62,6 +67,8 @@ flatpak:
   runtimeVersion: '23.08'
   baseVersion: '23.08'
 nsis:
+  installerIcon: build/page-wing.ico
+  uninstallerIcon: build/page-wing.ico
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true

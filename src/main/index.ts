@@ -51,7 +51,7 @@ if (!gotLock) {
     nativeTheme.themeSource = 'dark'
 
     if (process.platform === 'darwin' && is.dev) {
-      const devIcon = join(app.getAppPath(), 'build', 'icon.png')
+      const devIcon = join(app.getAppPath(), 'build', 'page-wing.png')
       if (existsSync(devIcon)) app.dock?.setIcon(devIcon)
     }
 

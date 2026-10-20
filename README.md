@@ -1,5 +1,7 @@
 # XViewer
 
+<img src="assets/branding/page-wing.png" width="112" alt="XViewer Page Wing logo" />
+
 A local Windows desktop workspace for viewing, organizing, annotating, and searching PDFs.
 
 Built on [PDFx](https://github.com/AlexandrosGounis/pdfx) by Alex Gounis. XViewer preserves the upstream MIT license and Git history. The rendering, canvas, markup, OCR, and redaction engines are inherited. The reader interface, navigation, image signatures, printing, Windows packaging, export corrections, and regression coverage are XViewer contributions.
@@ -60,6 +62,8 @@ Installers appear in `dist/`. After `npm run build`, run `npm run smoke` to laun
 - Regression tests, desktop smoke checks, Windows CI, and release automation.
 
 See [architecture](docs/ARCHITECTURE.md), [validation](docs/VALIDATION.md), and [roadmap](docs/ROADMAP.md). This is an early derivative project; the list above distinguishes our changes from inherited functionality.
+
+The [Page Wing branding assets and prompts](assets/branding/README.md) are included. `npm run brand:icons` regenerates platform icons from the approved transparent master.
 
 ## License
 

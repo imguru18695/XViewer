@@ -1,4 +1,4 @@
-import { shell, BrowserWindow, nativeTheme } from 'electron'
+import { app, shell, BrowserWindow, nativeTheme } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { GLASS_CONFIG, FALLBACK_BG, applyNativeGlass } from './native/glass'
@@ -38,6 +38,9 @@ export function createWindow(): void {
     minWidth: 720,
     minHeight: 480,
     show: false,
+    icon: app.isPackaged
+      ? join(process.resourcesPath, 'page-wing.png')
+      : join(app.getAppPath(), 'build', 'page-wing.png'),
     autoHideMenuBar: true,
     ...GLASS_CONFIG,
     ...(process.platform === 'darwin'
