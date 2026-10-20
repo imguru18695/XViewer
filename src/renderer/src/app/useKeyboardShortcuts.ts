@@ -47,6 +47,11 @@ export function useKeyboardShortcuts({
         else onUndo()
         return
       }
+      if (mod && event.key.toLowerCase() === 'y' && !isEditableTarget(event.target)) {
+        event.preventDefault()
+        onRedo()
+        return
+      }
       if (active && findOpen && event.key === 'Escape') {
         event.preventDefault()
         onCloseFind()

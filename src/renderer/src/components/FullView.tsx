@@ -1,9 +1,17 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { DocEntry } from '../types'
 import type { MarkKind, MarkMap, MarkRect } from '../edit/types'
 import { isMarkTool } from '../edit/types'
 import type { FieldValue, FormValuesBySource } from '../forms/types'
-import type { ElementMap, ElementPoint } from '../elements/types'
+import type {
+  ElementMap,
+  ElementPoint,
+  ElementRect,
+  ImageAsset,
+  PageElement
+} from '../elements/types'
+import { readImageAsset, resizedImageBox } from '../elements/image'
+import { PageView } from './PageView'
 import type { TextSpan } from '../elements/text-marks'
 import type { Rect } from './full-view/geometry'
 import { useElementSelection } from './full-view/use-element-selection'
@@ -38,6 +46,23 @@ interface FullViewProps {
   ) => void
   onRemoveElement: (pageId: string, elementId: string) => void
   onMoveElement: (pageId: string, elementId: string, dx: number, dy: number) => void
+  onAddImage: (pageId: string, asset: ImageAsset, pw: number, ph: number) => PageElement | null
+  onResizeImage: (pageId: string, elementId: string, box: ElementRect) => void
+  onReplaceImage: (
+    pageId: string,
+    elementId: string,
+    asset: ImageAsset,
+    pw: number,
+    ph: number
+  ) => void
+  onPrint: (docId: string) => void
+  onSave: (docId: string) => void
+  onFind: () => void
+  onOpen: () => void
+  onUndo: () => void
+  onRedo: () => void
+  flash: (message: string) => void
+  busy: boolean
   onToggleTextMark: (pageId: string, elementId: string, kind: MarkKind, span: TextSpan) => void
   onUpdateText: (
     pageId: string,
@@ -68,11 +93,19 @@ export function FullView({
   onToggleTextMark,
   onUpdateText,
   onActivePageChange,
-  onClose
+  onClose,
+  ...extra
 }: FullViewProps): React.JSX.Element {
   const s = useFullViewState(docs, startDocId, startPageId, originRect)
   const edit = useEditMode(marks, onRestoreMarks)
   const selection = useElementSelection(edit.editing && isMarkTool(edit.tool), onRemoveElement)
+  const [thumbnails, setThumbnails] = useState(true)
+  const imageInput = useRef<HTMLInputElement>(null)
+  const replaceTarget = useRef<string | null>(null)
+  const selectedImage = elements[s.page.id]?.find(
+    (e) => e.id === selection.selected?.elementId && e.kind === 'image'
+  )
+  useEffect(() => selection.selectElement(s.page.id, null), [s.page.id, selection.selectElement])
 
   useEffect(() => {
     if (!edit.editing || !edit.tool) return
@@ -98,6 +131,7 @@ export function FullView({
     setFlip: s.setFlip,
     setFlipTransition: s.setFlipTransition,
     setRevealed: s.setRevealed,
+    setCurrent: s.setCurrent,
     onClose
   })
 
@@ -180,6 +214,7 @@ export function FullView({
         selectedElementId={selection.selected?.elementId ?? null}
         onSelectElement={selection.selectElement}
         onMoveElement={onMoveElement}
+        onResizeImage={extra.onResizeImage}
         onDraw={onAddInk}
         onAddText={onAddText}
         onMarkText={(pageId, elementId, span) => {
@@ -192,9 +227,101 @@ export function FullView({
         runClose={controls.runClose}
       />
       {edit.editing && <div className="edit-glow" />}
+      <input
+        hidden
+        ref={imageInput}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        aria-label="Signature image file"
+        onChange={async (e) => {
+          const file = e.currentTarget.files?.[0]
+          e.currentTarget.value = ''
+          if (!file) return
+          const target = replaceTarget.current
+          try {
+            const asset = await readImageAsset(file)
+            edit.enterEdit()
+            if (target) extra.onReplaceImage(s.page.id, target, asset, s.page.width, s.page.height)
+            else {
+              const added = extra.onAddImage(s.page.id, asset, s.page.width, s.page.height)
+              if (added) selection.selectElement(s.page.id, added.id)
+            }
+          } catch (error) {
+            extra.flash(error instanceof Error ? error.message : 'Could not open signature image.')
+          }
+        }}
+      />
+      {thumbnails && (
+        <aside className="reader-thumbnails" aria-label="Page thumbnails">
+          <h2>Pages</h2>
+          {s.doc.pages.map((page, index) => (
+            <button
+              key={page.id}
+              aria-label={`Go to page ${index + 1}`}
+              aria-current={index === s.pi ? 'page' : undefined}
+              onClick={() => controls.goToPage(index)}
+            >
+              <div style={{ width: 88, height: (88 * page.height) / page.width }}>
+                <PageView
+                  pdf={page.source.pdf}
+                  pageNumber={page.pageIndex + 1}
+                  naturalWidth={page.width}
+                  naturalHeight={page.height}
+                  version={0}
+                  detail={false}
+                />
+              </div>
+              <span>{index + 1}</span>
+            </button>
+          ))}
+        </aside>
+      )}
+      {selectedImage?.kind === 'image' && (
+        <section className="signature-inspector element-pill" aria-label="Signature image options">
+          <strong>Signature image</strong>
+          <span>Drag to move · drag the blue corner to resize</span>
+          <label>
+            Width{' '}
+            <input
+              aria-label="Signature width"
+              type="range"
+              min="1"
+              max="90"
+              value={Math.round(selectedImage.bbox.w * 100)}
+              onChange={(e) =>
+                extra.onResizeImage(
+                  s.page.id,
+                  selectedImage.id,
+                  resizedImageBox(selectedImage.bbox, Number(e.target.value) / 100)
+                )
+              }
+            />
+          </label>
+          <button
+            className="btn glass"
+            onClick={() => {
+              replaceTarget.current = selectedImage.id
+              imageInput.current?.click()
+            }}
+          >
+            Replace image…
+          </button>
+          <button
+            className="btn glass"
+            onClick={() => {
+              onRemoveElement(s.page.id, selectedImage.id)
+              selection.selectElement(s.page.id, null)
+            }}
+          >
+            Delete image
+          </button>
+        </section>
+      )}
       <FullViewChrome
         chromeOpacity={chromeOpacity}
         docName={s.doc.name}
+        docNames={docs.map((d) => d.name)}
+        docIndex={s.di}
         pi={s.pi}
         pageCount={s.doc.pages.length}
         editing={edit.editing}
@@ -203,9 +330,34 @@ export function FullView({
         onEnterEdit={edit.enterEdit}
         onFinishEdit={edit.finishEdit}
         onRevert={edit.revert}
-        onToggleTool={edit.toggleTool}
+        onToggleTool={(tool) => {
+          if (!edit.editing) edit.enterEdit()
+          edit.toggleTool(tool)
+        }}
         runClose={controls.runClose}
-        navByKey={controls.navByKey}
+        goToPage={controls.goToPage}
+        goToDocument={controls.goToDocument}
+        busy={extra.busy}
+        zoom={(s.fit.w / s.page.width) * s.view.zoom}
+        thumbnails={thumbnails}
+        onThumbnails={() => setThumbnails((v) => !v)}
+        onImage={() => {
+          replaceTarget.current = null
+          imageInput.current?.click()
+        }}
+        onZoom={(direction) => controls.applyZoom((z) => z * (direction > 0 ? 1.25 : 0.8))}
+        onFitPage={controls.resetView}
+        onFitWidth={() => {
+          setThumbnails(false)
+          controls.applyZoom(() => (s.vw - 64) / s.fit.w)
+          s.setView((v) => ({ ...v, y: Math.max(0, (s.fit.h * v.zoom - (s.vh - 240)) / 2) }))
+        }}
+        onPrint={() => extra.onPrint(s.doc.id)}
+        onSave={() => extra.onSave(s.doc.id)}
+        onFind={extra.onFind}
+        onOpen={extra.onOpen}
+        onUndo={extra.onUndo}
+        onRedo={extra.onRedo}
       />
       {edit.editing && isMarkTool(edit.tool) && <ToolCursor tool={edit.tool} />}
     </div>

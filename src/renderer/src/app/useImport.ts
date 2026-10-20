@@ -10,7 +10,8 @@ import type { IncomingFile } from './types'
 export function useImport(
   collection: Collection,
   setBusy: (busy: boolean) => void,
-  flash: (message: string) => void
+  flash: (message: string) => void,
+  onOpenDocument?: (docId: string, pageId: string) => void
 ) {
   const { setDocs, docsRef, appendPagesToDoc, insertPagesIntoDoc, spliceDocsAfter } = collection
 
@@ -28,6 +29,8 @@ export function useImport(
             : file.data
           const entries = await importIntoDocs(name, data)
           setDocs((prev) => [...prev, ...dedupeNames(prev, entries)])
+          if (files.length === 1 && entries[0]?.pages[0])
+            onOpenDocument?.(entries[0].id, entries[0].pages[0].id)
         } catch (error) {
           console.error(`Failed to import ${file.name}`, error)
           failed.push(file.name)
@@ -36,7 +39,7 @@ export function useImport(
       setBusy(false)
       if (failed.length > 0) flash(`Could not open ${failed.join(', ')}`)
     },
-    [flash, setBusy, setDocs]
+    [flash, setBusy, setDocs, onOpenDocument]
   )
 
   useEffect(() => {

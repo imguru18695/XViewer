@@ -36,7 +36,7 @@ export function useFullViewDrag(opts: DragOptions): DragHandlers {
     }
     setView((v) => {
       const maxX = Math.max(0, (fit.w * v.zoom - vw) / 2)
-      const maxY = Math.max(0, (fit.h * v.zoom - vh) / 2)
+      const maxY = Math.max(0, (fit.h * v.zoom - (vh - 240)) / 2)
       return {
         ...v,
         x: clamp(d.panX + (event.clientX - d.x), -maxX, maxX),

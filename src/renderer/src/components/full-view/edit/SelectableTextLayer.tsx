@@ -8,7 +8,7 @@ interface SelectableTextLayerProps {
   pdf: PDFDocumentProxy
   pageNumber: number
   naturalHeight: number
-  tool: MarkKind
+  tool: MarkKind | 'select'
   onSelect: (rects: MarkRect[], drag: MarkRect | null) => void
 }
 
@@ -78,6 +78,7 @@ export function SelectableTextLayer({
   }, [pdf, pageNumber, naturalHeight])
 
   useEffect(() => {
+    if (tool === 'select') return
     const onDown = (event: PointerEvent): void => {
       const container = containerRef.current
       if (!container) return
@@ -104,7 +105,7 @@ export function SelectableTextLayer({
       window.removeEventListener('pointerdown', onDown, true)
       window.removeEventListener('pointerup', onUp)
     }
-  }, [onSelect])
+  }, [onSelect, tool])
 
   return (
     <div

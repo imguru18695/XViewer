@@ -1,6 +1,6 @@
 import type { MarkKind } from '../edit/types'
 
-export type ElementKind = 'ink' | 'text'
+export type ElementKind = 'ink' | 'text' | 'image'
 
 export interface ElementPoint {
   x: number
@@ -42,7 +42,22 @@ export interface TextElement {
   bbox: ElementRect
 }
 
-export type PageElement = InkElement | TextElement
+export interface ImageAsset {
+  dataUrl: string
+  width: number
+  height: number
+  name: string
+}
+
+export interface ImageElement {
+  id: string
+  kind: 'image'
+  number: number
+  asset: ImageAsset
+  bbox: ElementRect
+}
+
+export type PageElement = InkElement | TextElement | ImageElement
 
 export type ElementMap = Record<string, PageElement[]>
 

@@ -16,6 +16,8 @@ export function buildMenu(): void {
       label: 'File',
       submenu: [
         { id: 'open', label: 'Open…', accelerator: 'CommandOrControl+O', click: sendMenu('open') },
+        { label: 'Save a Copy…', accelerator: 'CommandOrControl+S', click: sendMenu('save') },
+        { label: 'Print…', accelerator: 'CommandOrControl+P', click: sendMenu('print') },
         { type: 'separator' },
         {
           id: 'export-pdfx',

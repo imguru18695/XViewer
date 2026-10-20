@@ -65,7 +65,7 @@ export function useFullViewEffects(opts: EffectsOptions): void {
     setView((v) => {
       if (v.zoom <= 1) return v.x === 0 && v.y === 0 ? v : { ...v, x: 0, y: 0 }
       const maxX = Math.max(0, (fit.w * v.zoom - vw) / 2)
-      const maxY = Math.max(0, (fit.h * v.zoom - vh) / 2)
+      const maxY = Math.max(0, (fit.h * v.zoom - (vh - 240)) / 2)
       const x = clamp(v.x, -maxX, maxX)
       const y = clamp(v.y, -maxY, maxY)
       return x === v.x && y === v.y ? v : { ...v, x, y }

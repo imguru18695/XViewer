@@ -10,6 +10,9 @@ export function createWebApi(): PdfxApi {
   initLaunchQueue()
   return {
     platform: 'linux',
+    printPages: async () => {
+      throw new Error('Printing is available in the desktop app.')
+    },
     rendererReady,
     chooseSavePath,
     readClipboardImage,

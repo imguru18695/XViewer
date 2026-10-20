@@ -90,7 +90,7 @@ export default function App(): React.JSX.Element {
     [find.active, find.matchedQuery, find.result, searchIndex.getOcrWords]
   )
 
-  const { exportCollection, exportZip } = useExport(
+  const { exportCollection, exportZip, saveDocument, printDocument } = useExport(
     docs,
     markState.marks,
     formState.values,
@@ -101,7 +101,8 @@ export default function App(): React.JSX.Element {
   const { addFiles, openViaDialog, addPagesToDoc, handleExternalDropFiles } = useImport(
     collection,
     setBusy,
-    flash
+    flash,
+    fullViewState.openPage
   )
   const { handlePaste } = usePaste(collection, addFiles, setBusy, flash)
 
@@ -168,8 +169,25 @@ export default function App(): React.JSX.Element {
       else if (action === 'export-pdfx') void exportCollection('pdfx')
       else if (action === 'export-pdf') void exportCollection('pdf')
       else if (action === 'export-zip') void exportZip()
+      else if (action === 'print') {
+        const active = docs.find((d) => d.pages.some((p) => p.id === fullViewState.hiddenPageId))
+        void printDocument(active?.id ?? collection.selected?.docId)
+      } else if (action === 'save') {
+        const active = docs.find((d) => d.pages.some((p) => p.id === fullViewState.hiddenPageId))
+        const id = active?.id ?? collection.selected?.docId ?? docs[0]?.id
+        if (id) void saveDocument(id)
+      }
     })
-  }, [openViaDialog, exportCollection, exportZip])
+  }, [
+    openViaDialog,
+    exportCollection,
+    exportZip,
+    printDocument,
+    saveDocument,
+    docs,
+    fullViewState.hiddenPageId,
+    collection.selected
+  ])
 
   const totalPages = docs.reduce((sum, d) => sum + d.pages.length, 0)
   const { fullView } = fullViewState
@@ -200,6 +218,12 @@ export default function App(): React.JSX.Element {
             onOpen={openViaDialog}
             onExportPdf={() => exportCollection('pdf')}
             onExportZip={exportZip}
+            onPrint={() => printDocument(collection.selected?.docId)}
+            onRead={() => {
+              const doc = docs.find((d) => d.id === collection.selected?.docId) ?? docs[0]
+              if (doc)
+                fullViewState.openPage(doc.id, collection.selected?.pageId ?? doc.pages[0].id)
+            }}
             onToggleAi={() => setAiOpen((open) => !open)}
           />
 
@@ -213,6 +237,22 @@ export default function App(): React.JSX.Element {
               onQuery={find.setQuery}
               onOcrLanguage={searchIndex.setOcrLanguage}
               onClose={find.closeFind}
+              onNavigate={(direction) => {
+                const matching = docs.flatMap((doc) =>
+                  doc.pages
+                    .filter((p) => find.result.pageIds.has(p.id))
+                    .map((page) => ({ doc, page }))
+                )
+                if (!matching.length) return
+                const index = matching.findIndex((m) => m.page.id === fullViewState.hiddenPageId)
+                const next =
+                  index < 0
+                    ? direction === 1
+                      ? 0
+                      : matching.length - 1
+                    : (index + direction + matching.length) % matching.length
+                fullViewState.openPage(matching[next].doc.id, matching[next].page.id)
+              }}
             />
           )}
 
@@ -249,6 +289,7 @@ export default function App(): React.JSX.Element {
 
           {fullView && fullViewDoc && (
             <FullView
+              key={`${fullView.docId}:${fullView.pageId}`}
               docs={docs}
               startDocId={fullView.docId}
               startPageId={fullView.pageId}
@@ -263,6 +304,17 @@ export default function App(): React.JSX.Element {
               onAddText={elementState.addText}
               onRemoveElement={elementState.removeElement}
               onMoveElement={elementState.moveElement}
+              onAddImage={elementState.addImage}
+              onResizeImage={elementState.resizeImage}
+              onReplaceImage={elementState.replaceImage}
+              onPrint={printDocument}
+              onSave={saveDocument}
+              onFind={find.openFind}
+              onOpen={openViaDialog}
+              onUndo={onUndo}
+              onRedo={onRedo}
+              flash={flash}
+              busy={busy}
               onToggleTextMark={elementState.toggleTextMark}
               onUpdateText={elementState.updateText}
               onActivePageChange={fullViewState.setHiddenPageId}

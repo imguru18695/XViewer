@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import type { MarkKind } from '../../edit/types'
-import type { PageElement, TextElement } from '../../elements/types'
+import type { PageElement, TextElement, ElementRect } from '../../elements/types'
 import type { TextSpan } from '../../elements/text-marks'
 import { ElementNode } from './ElementNode'
 import { ElementDecorations } from './ElementDecorations'
@@ -22,6 +22,7 @@ interface ElementsLayerProps {
   onMove?: (id: string, dx: number, dy: number) => void
   onMarkText?: (id: string, span: TextSpan) => void
   onUpdateText?: (id: string, text: string) => void
+  onResizeImage?: (id: string, box: ElementRect) => void
 }
 
 const textElements = (list: PageElement[]): TextElement[] =>
@@ -39,7 +40,8 @@ export function ElementsLayer({
   onSelect,
   onMove,
   onMarkText,
-  onUpdateText
+  onUpdateText,
+  onResizeImage
 }: ElementsLayerProps): React.JSX.Element | null {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
@@ -83,6 +85,7 @@ export function ElementsLayer({
       }}
       onMarkDragStart={startMarkDrag}
       onEdit={(id) => onUpdateText && setEditingId(id)}
+      onResize={onResizeImage}
     />
   )
 

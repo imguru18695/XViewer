@@ -7,10 +7,12 @@ import { OpenedFile, IMPORTABLE, readFiles, expandDropPaths } from './file-intak
 import { clipboardBytes, clipboardFilePaths } from './clipboard'
 import { readResource } from './resource'
 import { getMainWindow, setRendererReady, sendOpenPaths } from './window'
+import { printPages } from './print'
 
 const MAX_WRITE_BYTES = 1024 * 1024 * 1024 // 1 GiB cap on a single IPC write
 
 export function registerIpc(getPending: () => string[], clearPending: () => void): void {
+  ipcMain.handle('xviewer:print-pages', (_event, pages) => printPages(pages))
   ipcMain.handle('pdfx:renderer-ready', async () => {
     setRendererReady(true)
     const paths = getPending()

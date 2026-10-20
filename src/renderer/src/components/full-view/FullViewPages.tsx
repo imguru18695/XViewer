@@ -2,7 +2,7 @@ import type { DocEntry } from '../../types'
 import type { View } from './geometry'
 import type { EditTool, MarkMap, MarkRect } from '../../edit/types'
 import type { FieldValue, FormValues, FormValuesBySource } from '../../forms/types'
-import type { ElementMap, ElementPoint } from '../../elements/types'
+import type { ElementMap, ElementPoint, ElementRect } from '../../elements/types'
 import type { TextSpan } from '../../elements/text-marks'
 import { FullViewPage } from './FullViewPage'
 import { useFullViewDrag } from './use-full-view-drag'
@@ -38,6 +38,7 @@ interface FullViewPagesProps {
   selectedElementId: string | null
   onSelectElement: (pageId: string, id: string | null) => void
   onMoveElement: (pageId: string, id: string, dx: number, dy: number) => void
+  onResizeImage: (pageId: string, id: string, box: ElementRect) => void
   onDraw: (pageId: string, points: ElementPoint[], pageWidth: number, pageHeight: number) => void
   onAddText: (
     pageId: string,
@@ -117,6 +118,7 @@ export function FullViewPages(props: FullViewPagesProps): React.JSX.Element {
               selectedElementId={selectedElementId}
               onSelectElement={(id) => onSelectElement(p.id, id)}
               onMoveElement={(id, dx, dy) => onMoveElement(p.id, id, dx, dy)}
+              onResizeImage={(id, box) => props.onResizeImage(p.id, id, box)}
               onDraw={(points) => onDraw(p.id, points, p.width, p.height)}
               onAddText={(text, origin) => onAddText(p.id, text, origin, p.width, p.height)}
               onMarkText={(id, span) => onMarkText(p.id, id, span)}

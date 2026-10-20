@@ -3,6 +3,7 @@ import { zipSync } from 'fflate'
 import { buildPdf, buildPdfx, stripExtension } from '../pdfx/format'
 import { prepareExportPage } from '../pdfx/export-pages'
 import { fillDocSources } from '../forms/fill'
+import { renderPrintPages } from '../pdfx/print-pages'
 import type { DocEntry } from '../types'
 import type { MarkMap } from '../edit/types'
 import type { FormValuesBySource } from '../forms/types'
@@ -94,5 +95,49 @@ export function useExport(
     }
   }, [docs, preparePages, formValues, flash, setBusy])
 
-  return { exportCollection, exportZip }
+  const documentPdf = useCallback(
+    async (docId?: string) => {
+      const selected = docId ? docs.filter((d) => d.id === docId) : docs
+      if (!selected.length) throw new Error('Open a PDF first.')
+      const filled = await fillDocSources(selected, formValues)
+      const pages = await Promise.all(selected.map((doc) => preparePages(doc, filled)))
+      return buildPdf(pages.flat())
+    },
+    [docs, formValues, preparePages]
+  )
+
+  const saveDocument = useCallback(
+    async (docId: string) => {
+      const doc = docs.find((d) => d.id === docId)
+      if (!doc) return
+      const path = await window.api.chooseSavePath(`${doc.name}.pdf`, PDF_FILTER)
+      if (!path) return
+      setBusy(true)
+      try {
+        flash(`Saved ${await window.api.writeFile(path, await documentPdf(docId))}`)
+      } catch (error) {
+        flash(error instanceof Error ? error.message : 'Could not save PDF.')
+      } finally {
+        setBusy(false)
+      }
+    },
+    [docs, documentPdf, flash, setBusy]
+  )
+
+  const printDocument = useCallback(
+    async (docId?: string) => {
+      setBusy(true)
+      try {
+        const result = await window.api.printPages(await renderPrintPages(await documentPdf(docId)))
+        flash(result === 'printed' ? 'Sent to printer' : 'Printing canceled')
+      } catch (error) {
+        flash(error instanceof Error ? error.message : 'Could not print PDF.')
+      } finally {
+        setBusy(false)
+      }
+    },
+    [documentPdf, setBusy, flash]
+  )
+
+  return { exportCollection, exportZip, saveDocument, printDocument }
 }

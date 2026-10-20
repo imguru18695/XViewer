@@ -1,5 +1,6 @@
 import type { MarkKind } from '../../edit/types'
-import type { PageElement, TextElement } from '../../elements/types'
+import type { PageElement, TextElement, ElementRect } from '../../elements/types'
+import { ElementImage } from './ElementImage'
 import type { TextSpan } from '../../elements/text-marks'
 import { ElementPath } from './ElementPath'
 import { ElementText } from './ElementText'
@@ -19,6 +20,7 @@ interface ElementNodeProps {
   onDragStart: (id: string, clientX: number, clientY: number) => void
   onMarkDragStart: (element: TextElement, clientX: number, clientY: number, detail: number) => void
   onEdit: (id: string) => void
+  onResize?: (id: string, box: ElementRect) => void
 }
 
 export function ElementNode({
@@ -27,8 +29,11 @@ export function ElementNode({
   preview,
   onMarkDragStart,
   onEdit,
+  onResize,
   ...shared
 }: ElementNodeProps): React.JSX.Element {
+  if (element.kind === 'image')
+    return <ElementImage element={element} onResize={onResize} {...shared} />
   return element.kind === 'ink' ? (
     <ElementPath element={element} {...shared} />
   ) : (

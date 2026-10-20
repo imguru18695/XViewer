@@ -7,7 +7,7 @@ import { DOUBLE_CLICK_ZOOM, fitInto, TRANSITION_MS } from './geometry'
 import type { EditTool, Mark, MarkRect } from '../../edit/types'
 import { isElementTool, isMarkTool } from '../../edit/types'
 import type { FieldValue, FormValues } from '../../forms/types'
-import type { ElementPoint, PageElement } from '../../elements/types'
+import type { ElementPoint, PageElement, ElementRect } from '../../elements/types'
 import type { TextSpan } from '../../elements/text-marks'
 import { fieldRectsForDrag } from '../../edit/field-targets'
 import { MarkLayer } from '../MarkLayer'
@@ -37,6 +37,7 @@ interface FullViewPageProps {
   selectedElementId: string | null
   onSelectElement: (id: string | null) => void
   onMoveElement: (id: string, dx: number, dy: number) => void
+  onResizeImage: (id: string, bbox: ElementRect) => void
   onDraw: (points: ElementPoint[]) => void
   onAddText: (text: string, origin: ElementPoint) => void
   onMarkText: (id: string, span: TextSpan) => void
@@ -120,6 +121,7 @@ export function FullViewPage(props: FullViewPageProps): React.JSX.Element {
             markTool={isCurrent && isMarkTool(selectTool) ? selectTool : null}
             onSelect={onSelectElement}
             onMove={onMoveElement}
+            onResizeImage={props.onResizeImage}
             onMarkText={onMarkText}
             onUpdateText={onUpdateText}
           />
@@ -142,6 +144,15 @@ export function FullViewPage(props: FullViewPageProps): React.JSX.Element {
                 })
               }
             }}
+          />
+        )}
+        {isCurrent && selectTool === null && (
+          <SelectableTextLayer
+            pdf={p.source.pdf}
+            pageNumber={p.pageIndex + 1}
+            naturalHeight={p.height}
+            tool="select"
+            onSelect={() => {}}
           />
         )}
         {isCurrent && selectTool === 'draw' && (

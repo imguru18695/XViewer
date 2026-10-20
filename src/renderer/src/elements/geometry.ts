@@ -2,6 +2,7 @@ import type { ElementPoint, ElementRect, PageElement } from './types'
 
 export function translateElement(element: PageElement, dx: number, dy: number): PageElement {
   const bbox = { ...element.bbox, x: element.bbox.x + dx, y: element.bbox.y + dy }
+  if (element.kind === 'image') return { ...element, bbox }
   if (element.kind === 'text') {
     return { ...element, origin: { x: element.origin.x + dx, y: element.origin.y + dy }, bbox }
   }

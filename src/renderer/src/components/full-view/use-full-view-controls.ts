@@ -24,6 +24,7 @@ interface ControlsOptions {
   setFlip: (flip: string | null) => void
   setFlipTransition: (on: boolean) => void
   setRevealed: (on: boolean) => void
+  setCurrent: React.Dispatch<React.SetStateAction<{ di: number; pi: number }>>
   onClose: () => void
 }
 
@@ -33,11 +34,13 @@ export interface FullViewControls {
   panBy: (dx: number, dy: number) => void
   navByKey: (axis: 'x' | 'y', dir: 1 | -1) => void
   runClose: () => void
+  goToPage: (index: number) => void
+  goToDocument: (index: number) => void
 }
 
 export function useFullViewControls(opts: ControlsOptions): FullViewControls {
   const { scrollRef, closingRef, editingRef, docsRef, vpRef, curRef, phaseRef } = opts
-  const { setView, setPhase, setFlip, setFlipTransition, setRevealed, onClose } = opts
+  const { setView, setPhase, setFlip, setFlipTransition, setRevealed, onClose, setCurrent } = opts
 
   const resetView = useCallback(() => setView({ zoom: 1, x: 0, y: 0 }), [])
 
@@ -56,7 +59,7 @@ export function useFullViewControls(opts: ControlsOptions): FullViewControls {
         const dx = cx - vp.w / 2
         const dy = cy - vp.h / 2
         const maxX = Math.max(0, (b.w * nz - vp.w) / 2)
-        const maxY = Math.max(0, (b.h * nz - vp.h) / 2)
+        const maxY = Math.max(0, (b.h * nz - (vp.h - 240)) / 2)
         const allowY = editingRef.current ? EDIT_PAN_ALLOWANCE : 0
         return {
           zoom: nz,
@@ -75,28 +78,39 @@ export function useFullViewControls(opts: ControlsOptions): FullViewControls {
     const b = fitInto(p.width, p.height, vp)
     setView((v) => {
       const maxX = Math.max(0, (b.w * v.zoom - vp.w) / 2)
-      const maxY = Math.max(0, (b.h * v.zoom - vp.h) / 2)
+      const maxY = Math.max(0, (b.h * v.zoom - (vp.h - 240)) / 2)
       const allowY = editingRef.current ? EDIT_PAN_ALLOWANCE : 0
       return { ...v, x: clamp(v.x + dx, -maxX, maxX), y: clamp(v.y + dy, -maxY, maxY + allowY) }
     })
   }, [])
 
-  const navByKey = useCallback((axis: 'x' | 'y', dir: 1 | -1) => {
+  const navigateTo = useCallback((di: number, pi: number) => {
     const sc = scrollRef.current
-    if (!sc) return
-    const { di: cdi, pi: cpi } = curRef.current
-    if (axis === 'x') {
-      const docEl = sc.children[cdi] as HTMLElement | undefined
-      if (!docEl) return
-      const target = clamp(cpi + dir, 0, docsRef.current[cdi].pages.length - 1)
-      const slide = docEl.children[target] as HTMLElement | undefined
-      if (slide) docEl.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' })
-    } else {
-      const target = clamp(cdi + dir, 0, docsRef.current.length - 1)
-      const docEl = sc.children[target] as HTMLElement | undefined
-      if (docEl) sc.scrollTo({ top: docEl.offsetTop, behavior: 'smooth' })
-    }
+    if (!sc || !Number.isFinite(di) || !Number.isFinite(pi)) return
+    di = clamp(Math.trunc(di), 0, docsRef.current.length - 1)
+    pi = clamp(Math.trunc(pi), 0, docsRef.current[di].pages.length - 1)
+    const docEl = sc.children[di] as HTMLElement | undefined
+    const slide = docEl?.children[pi] as HTMLElement | undefined
+    if (!docEl || !slide) return
+    curRef.current = { di, pi }
+    setCurrent({ di, pi })
+    sc.scrollTo({ top: docEl.offsetTop, behavior: 'instant' })
+    docEl.scrollTo({ left: slide.offsetLeft, behavior: 'instant' })
+    setView({ zoom: 1, x: 0, y: 0 })
   }, [])
+
+  const goToPage = useCallback(
+    (index: number) => navigateTo(curRef.current.di, index),
+    [navigateTo]
+  )
+  const goToDocument = useCallback((index: number) => navigateTo(index, 0), [navigateTo])
+  const navByKey = useCallback(
+    (axis: 'x' | 'y', dir: 1 | -1) => {
+      if (axis === 'x') goToPage(curRef.current.pi + dir)
+      else goToDocument(curRef.current.di + dir)
+    },
+    [goToPage, goToDocument]
+  )
 
   const runClose = useCallback(() => {
     if (closingRef.current || phaseRef.current !== 'open') return
@@ -123,5 +137,5 @@ export function useFullViewControls(opts: ControlsOptions): FullViewControls {
     window.setTimeout(onClose, TRANSITION_MS + 20)
   }, [onClose])
 
-  return { resetView, applyZoom, panBy, navByKey, runClose }
+  return { resetView, applyZoom, panBy, navByKey, runClose, goToPage, goToDocument }
 }

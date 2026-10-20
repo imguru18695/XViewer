@@ -6,6 +6,10 @@ import { buildPdf, buildPdfx } from '../src/renderer/src/pdfx/build'
 import { fillFormValues } from '../src/renderer/src/forms/fill'
 import { buildRedactedSourcePage } from '../src/renderer/src/pdfx/redact'
 import type { PageEntry } from '../src/renderer/src/types'
+import { createImageElement, resizedImageBox } from '../src/renderer/src/elements/image'
+import { translateElement } from '../src/renderer/src/elements/geometry'
+import { applyElementEntry } from '../src/renderer/src/elements/apply-entry'
+import { degrees, PDFDict } from 'pdf-lib'
 
 async function fixture() {
   const doc = await PDFDocument.create()
@@ -96,4 +100,56 @@ test('redaction removes selected glyphs while retaining unrelated text', async (
   const decoded = Buffer.from(readContent(output.context, output.getPage(0))!).toString('latin1')
   assert.equal(decoded.includes(Buffer.from('SECRET').toString('hex').toUpperCase()), false)
   assert.ok(decoded.includes(Buffer.from('PUBLIC').toString('hex').toUpperCase()))
+})
+
+const png =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII='
+
+test('signature images keep their aspect ratio and remain on the page when resized', () => {
+  const image = createImageElement(
+    { dataUrl: png, name: 'signature.png', width: 400, height: 100 },
+    1,
+    600,
+    800
+  )
+  const box = resizedImageBox(image.bbox, 2)
+  assert.ok(box.x + box.w <= 1)
+  assert.ok(box.y + box.h <= 1)
+  assert.equal(box.w / box.h, image.bbox.w / image.bbox.h)
+  const moved = translateElement(image, 0.05, 0.1)
+  assert.equal(moved.bbox.x, image.bbox.x + 0.05)
+  const entry = {
+    action: 'element' as const,
+    value: 'edit' as const,
+    payload: { pageId: 'p', before: image, after: moved }
+  }
+  assert.deepEqual(applyElementEntry([moved], entry, 'undo'), [image])
+  assert.deepEqual(applyElementEntry([image], entry, 'redo'), [moved])
+})
+
+test('signature images are embedded in exports including rotated source pages', async () => {
+  for (const angle of [0, 90, 180, 270]) {
+    const doc = await PDFDocument.create()
+    doc.addPage([600, 800]).setRotation(degrees(angle))
+    const element = createImageElement(
+      { dataUrl: png, name: 'signature.png', width: 400, height: 100 },
+      1,
+      angle % 180 ? 800 : 600,
+      angle % 180 ? 600 : 800
+    )
+    const output = await PDFDocument.load(
+      await buildPdf([
+        {
+          kind: 'source',
+          bytes: await doc.save(),
+          sourceKey: 'sig',
+          pageIndex: 0,
+          elements: [element]
+        }
+      ])
+    )
+    const objects = output.getPage(0).node.Resources()!.lookup(PDFName.of('XObject'), PDFDict)
+    assert.equal(objects.keys().length, 1)
+    assert.equal(output.getPage(0).getRotation().angle, angle)
+  }
 })

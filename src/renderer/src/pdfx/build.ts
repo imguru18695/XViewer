@@ -41,7 +41,7 @@ async function addExportPage(ctx: BuildContext, page: ExportPage): Promise<void>
   const fonts = await elementFonts(ctx, page)
   if (page.kind === 'raster') {
     const added = await addRasterPage(ctx.output, page)
-    drawElements(added, page.elements, fonts)
+    await drawElements(added, page.elements, fonts)
     return
   }
   let source = ctx.sources.get(page.sourceKey)
@@ -51,7 +51,7 @@ async function addExportPage(ctx: BuildContext, page: ExportPage): Promise<void>
   }
   const [copied] = await ctx.output.copyPages(source, [page.pageIndex])
   ctx.output.addPage(copied)
-  drawElements(copied, page.elements, fonts)
+  await drawElements(copied, page.elements, fonts)
   drawMarks(copied, page.marks)
 }
 

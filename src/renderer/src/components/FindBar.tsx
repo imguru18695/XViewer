@@ -12,6 +12,7 @@ interface FindBarProps {
   onQuery: (query: string) => void
   onOcrLanguage: (lang: string) => void
   onClose: () => void
+  onNavigate: (direction: -1 | 1) => void
 }
 
 function countLabel(query: string, result: SearchResult): string {
@@ -28,7 +29,8 @@ export function FindBar({
   ocrLanguage,
   onQuery,
   onOcrLanguage,
-  onClose
+  onClose,
+  onNavigate
 }: FindBarProps): React.JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -54,6 +56,10 @@ export function FindBar({
         value={query}
         onChange={(e) => onQuery(e.target.value)}
         onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            onNavigate(e.shiftKey ? -1 : 1)
+          }
           if (e.key === 'Escape') {
             e.preventDefault()
             e.stopPropagation()
@@ -69,6 +75,22 @@ export function FindBar({
       <span className="findbar-count" aria-live="polite">
         {countLabel(query, result)}
       </span>
+      <button
+        className="icon-btn"
+        title="Previous matching page (Shift+Enter)"
+        disabled={!result.pages}
+        onClick={() => onNavigate(-1)}
+      >
+        ↑
+      </button>
+      <button
+        className="icon-btn"
+        title="Next matching page (Enter)"
+        disabled={!result.pages}
+        onClick={() => onNavigate(1)}
+      >
+        ↓
+      </button>
       {hasScanned && (
         <select
           className="findbar-lang"

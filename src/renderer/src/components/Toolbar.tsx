@@ -17,6 +17,8 @@ interface ToolbarProps {
   onExportPdf: () => void
   onExportZip: () => void
   onToggleAi: () => void
+  onPrint: () => void
+  onRead: () => void
 }
 
 const isMac = window.api.platform === 'darwin'
@@ -34,7 +36,9 @@ export function Toolbar({
   onOpen,
   onExportPdf,
   onExportZip,
-  onToggleAi
+  onToggleAi,
+  onPrint,
+  onRead
 }: ToolbarProps): React.JSX.Element {
   const stars = useGitHubStars(isWeb ? 'imguru18695/XViewer' : null)
   return (
@@ -50,6 +54,12 @@ export function Toolbar({
         </div>
       )}
       <div className="toolbar-spacer" />
+      <button className="btn glass" onClick={onRead} disabled={busy || documentCount === 0}>
+        Read PDF
+      </button>
+      <button className="btn glass" onClick={onPrint} disabled={busy || documentCount === 0}>
+        Print
+      </button>
       {documentCount > 0 && (
         <div className="zoom-cluster">
           <button className="icon-btn" title="Zoom out" onClick={onZoomOut}>

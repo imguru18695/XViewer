@@ -1,6 +1,13 @@
 import { useCallback, useRef, useState } from 'react'
 import type { MarkKind } from '../edit/types'
-import type { ElementMap, ElementPoint, PageElement } from '../elements/types'
+import type {
+  ElementMap,
+  ElementPoint,
+  PageElement,
+  ImageAsset,
+  ElementRect
+} from '../elements/types'
+import { createImageElement } from '../elements/image'
 import { translateElement } from '../elements/geometry'
 import { createInkElement, createTextElement, editedTextElement } from '../elements/create'
 import { applyElementEntry } from '../elements/apply-entry'
@@ -30,6 +37,12 @@ export function useElements(pushUndo: (entry: UndoEntry) => void) {
   const addInk = useCallback(
     (pageId: string, points: ElementPoint[], pageWidth: number, pageHeight: number) =>
       addElement(pageId, createInkElement(points, nextNumberRef.current, pageWidth, pageHeight)),
+    [addElement]
+  )
+
+  const addImage = useCallback(
+    (pageId: string, asset: ImageAsset, pw: number, ph: number) =>
+      addElement(pageId, createImageElement(asset, nextNumberRef.current, pw, ph)),
     [addElement]
   )
 
@@ -107,6 +120,32 @@ export function useElements(pushUndo: (entry: UndoEntry) => void) {
     [updateElement]
   )
 
+  const resizeImage = useCallback(
+    (pageId: string, elementId: string, bbox: ElementRect) => {
+      const element = elementsRef.current[pageId]?.find((e) => e.id === elementId)
+      if (element?.kind === 'image') updateElement(pageId, 'edit', element, { ...element, bbox })
+    },
+    [updateElement]
+  )
+
+  const replaceImage = useCallback(
+    (pageId: string, elementId: string, asset: ImageAsset, pw: number, ph: number) => {
+      const element = elementsRef.current[pageId]?.find((e) => e.id === elementId)
+      if (element?.kind !== 'image') return
+      const fresh = createImageElement(asset, element.number, pw, ph)
+      updateElement(pageId, 'edit', element, {
+        ...fresh,
+        id: element.id,
+        bbox: {
+          ...fresh.bbox,
+          x: Math.min(element.bbox.x, 1 - fresh.bbox.w),
+          y: Math.min(element.bbox.y, 1 - fresh.bbox.h)
+        }
+      })
+    },
+    [updateElement]
+  )
+
   const toggleTextMark = useCallback(
     (pageId: string, elementId: string, kind: MarkKind, span: TextSpan) => {
       const element = elementsRef.current[pageId]?.find((e) => e.id === elementId)
@@ -157,6 +196,9 @@ export function useElements(pushUndo: (entry: UndoEntry) => void) {
   return {
     elements,
     addInk,
+    addImage,
+    resizeImage,
+    replaceImage,
     addText,
     addTexts,
     removeElement,

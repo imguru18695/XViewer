@@ -1,14 +1,13 @@
-# XViewer 0.1.0 — Windows preview
+# XViewer 0.2.0 — Reader and image signatures
 
-First Windows preview of XViewer, derived from PDFx with upstream attribution and history preserved.
+- PDFs open in a reader with a document selector, thumbnails, page-number entry, first/last controls, Page Up/Page Down and Home/End keys.
+- Fit Page, Fit Width, zoom controls, mouse-wheel paging, and selectable/copyable PDF text.
+- Sign menu offers freehand drawing or a local PNG/JPEG/WebP image.
+- Signature images support drag placement, proportional corner resizing, replacement, deletion, and undo/redo. Images are embedded in saved PDFs.
+- Print button and Ctrl+P send the current document with edits to the system print dialog.
+- Save a Copy and Ctrl+S save the current document; the organization canvas still supports combined export.
+- Find now navigates to matching pages with Enter/Shift+Enter.
 
-- Local PDF viewing, organization, annotation, simple form filling, OCR search, and redaction.
-- x64 Windows installer with PDF/PDFX Open with associations.
-- Plain PDF export omits collection names/manifests.
-- Form failures stop export instead of silently losing entered values.
-- Updated Electron/PDF.js dependencies and compatible clipboard/form APIs.
-- Automated PDF regression coverage and desktop checks for opening, search, offline OCR, and redaction export.
+The print pipeline renders pages at 150 DPI and supports up to 500 pages / 256 MB per job. Automated print testing intercepts the native printer call and validates generated output; physical printer behavior still needs manual testing.
 
-This installer is unsigned. Windows may display a reputation warning. OCR currently supports in-app search rather than searchable scan export. The workspace does not autosave; export before closing. Redaction is tested on generated fixtures, not comprehensively certified for every PDF structure. Certificate signatures and existing-paragraph editing are not included.
-
-See README for setup, feature limits, and upstream credits.
+This preview installer is unsigned. The workspace does not autosave; save/export before closing. Image signatures are visual marks, not certificate signatures. Image cropping/background cleanup and persistent OCR text-layer export are not included. Upstream PDFx attribution and MIT license remain preserved.

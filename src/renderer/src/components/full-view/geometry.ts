@@ -32,7 +32,7 @@ export const TRANSITION_MS = 340
 export const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v))
 
 export function fitInto(pw: number, ph: number, vp: Size): Size {
-  const f = Math.min(vp.w / pw, vp.h / ph)
+  const f = Math.min(Math.max(120, vp.w - 80) / pw, Math.max(120, vp.h - 240) / ph)
   return { w: pw * f, h: ph * f }
 }
 

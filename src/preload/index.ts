@@ -8,7 +8,7 @@ export interface OpenedFile {
 
 export type ZoomAction = 'in' | 'out' | 'reset'
 
-export type MenuAction = 'open' | 'export-pdfx' | 'export-pdf' | 'export-zip'
+export type MenuAction = 'open' | 'export-pdfx' | 'export-pdf' | 'export-zip' | 'print' | 'save'
 
 export interface SaveFilter {
   name: string
@@ -17,6 +17,9 @@ export interface SaveFilter {
 
 const api = {
   platform: process.platform,
+  printPages: (
+    pages: { png: string; width: number; height: number }[]
+  ): Promise<'printed' | 'canceled'> => ipcRenderer.invoke('xviewer:print-pages', pages),
   rendererReady: (): Promise<void> => ipcRenderer.invoke('pdfx:renderer-ready'),
   chooseSavePath: (defaultName: string, filter?: SaveFilter): Promise<string | null> =>
     ipcRenderer.invoke('pdfx:choose-save-path', defaultName, filter),
