@@ -44,7 +44,7 @@ const app = await electron.launch({
   timeout: 30000
 })
 const processLogs = []
-app.process().stderr?.on('data', data => processLogs.push(data.toString()))
+app.process().stderr?.on('data', (data) => processLogs.push(data.toString()))
 app.process().on('exit', (code, signal) => console.log('Electron exit:', code, signal))
 try {
   const page = await app.firstWindow()
@@ -188,7 +188,10 @@ try {
       if (win.getTitle() !== 'XViewer Print') return
       win.webContents.print = (options, callback) => {
         globalThis.__printOptions = options
-        if (globalThis.__cancelPrint) { callback(false, 'cancelled'); return }
+        if (globalThis.__cancelPrint) {
+          callback(false, 'cancelled')
+          return
+        }
         win.webContents
           .printToPDF({ printBackground: true, preferCSSPageSize: true })
           .then((bytes) => {
@@ -210,10 +213,14 @@ try {
   const printedDoc = await PDFDocument.load(Uint8Array.from(printed))
   assert.equal(printedDoc.getPageCount(), 2)
   assert.equal(await app.evaluate(() => globalThis.__printOptions.silent), false)
-  await app.evaluate(() => { globalThis.__cancelPrint = true })
+  await app.evaluate(() => {
+    globalThis.__cancelPrint = true
+  })
   await page.locator('.full-view').getByRole('button', { name: 'Print', exact: true }).click()
   await page.getByText('Printing canceled', { exact: true }).waitFor()
-  await app.evaluate(() => { globalThis.__cancelPrint = false })
+  await app.evaluate(() => {
+    globalThis.__cancelPrint = false
+  })
   await page.getByRole('button', { name: 'Save a Copy', exact: true }).waitFor({ state: 'visible' })
   console.log('PASS: print pipeline and native-dialog options (physical printing mocked)')
   const signedPath = resolve(`.smoke/signed-${process.pid}.pdf`)
@@ -326,7 +333,8 @@ try {
 } catch (error) {
   console.log(processLogs.slice(-12).join('\n'))
   const window = app.windows()[0]
-  if (window && !window.isClosed()) await window.screenshot({ path: '.smoke/failure.png' }).catch(() => {})
+  if (window && !window.isClosed())
+    await window.screenshot({ path: '.smoke/failure.png' }).catch(() => {})
   throw error
 } finally {
   await app.close()

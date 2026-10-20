@@ -106,6 +106,20 @@ const png =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII='
 
 test('signature images keep their aspect ratio and remain on the page when resized', () => {
+  for (const [width, height] of [
+    [1, 10000],
+    [10000, 1]
+  ]) {
+    const extreme = createImageElement(
+      { dataUrl: png, name: 'image.png', width, height },
+      1,
+      600,
+      800
+    )
+    const resized = resizedImageBox(extreme.bbox, 2)
+    assert.ok(resized.x + resized.w <= 1 + 1e-10)
+    assert.ok(resized.y + resized.h <= 1 + 1e-10)
+  }
   const image = createImageElement(
     { dataUrl: png, name: 'signature.png', width: 400, height: 100 },
     1,

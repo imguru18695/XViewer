@@ -8,7 +8,8 @@ export function imageBox(asset: ImageAsset, pageWidth: number, pageHeight: numbe
 
 export function resizedImageBox(box: ElementRect, width: number): ElementRect {
   const ratio = box.h / box.w
-  const w = Math.max(0.01, Math.min(width, 1 - box.x, (1 - box.y) / ratio))
+  const maxWidth = Math.min(1 - box.x, (1 - box.y) / ratio)
+  const w = Math.min(maxWidth, Math.max(Math.min(0.01, maxWidth), width))
   return { ...box, w, h: w * ratio }
 }
 

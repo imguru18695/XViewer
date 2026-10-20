@@ -12,7 +12,13 @@ interface InputOptions extends FullViewControls {
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
   const el = target as HTMLElement | null
-  return !!el && (el.isContentEditable || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
+  return (
+    !!el &&
+    (el.isContentEditable ||
+      el.tagName === 'INPUT' ||
+      el.tagName === 'TEXTAREA' ||
+      el.tagName === 'SELECT')
+  )
 }
 
 export function useFullViewInput(opts: InputOptions): void {
