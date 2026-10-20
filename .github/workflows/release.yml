@@ -19,6 +19,17 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - shell: pwsh
-        run: gh release create $env:GITHUB_REF_NAME dist/*.exe --title "XViewer $env:GITHUB_REF_NAME" --generate-notes
+        run: |
+          gh release view $env:GITHUB_REF_NAME *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'Release already published; preserving its verified assets.'
+            exit 0
+          }
+          $lines = Get-ChildItem dist/*.exe | ForEach-Object {
+            $digest = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$digest  $($_.Name)"
+          }
+          Set-Content dist/SHA256SUMS.txt $lines -Encoding ascii
+          gh release create $env:GITHUB_REF_NAME dist/*.exe dist/SHA256SUMS.txt --title "XViewer $env:GITHUB_REF_NAME" --notes-file docs/RELEASE_NOTES.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
