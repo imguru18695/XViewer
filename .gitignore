@@ -23,3 +23,5 @@ native/build/
 
 resources/ocr
 resources/pdf
+
+.audit-local.json

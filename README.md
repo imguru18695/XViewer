@@ -1,53 +1,56 @@
-<div align="center">
+# XViewer
 
-# PDFx
+A local Windows desktop workspace for viewing, organizing, annotating, and searching PDFs.
 
-**One file. Many documents. Still a PDF.**
+Built on [PDFx](https://github.com/AlexandrosGounis/pdfx) by Alex Gounis. XViewer preserves the upstream MIT license and Git history. The rendering, canvas, markup, OCR, and redaction engines are inherited. Windows packaging, export corrections, regression coverage, and project documentation are XViewer contributions.
 
-<br>
+## Getting started
 
-[![Download](https://img.shields.io/badge/Download-000000?style=for-the-badge&logo=apple&logoColor=white)](https://pub-2f99e567a5f04aefb5e8cb75acb90ef7.r2.dev/PDFx.zip)&nbsp;
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-4285F4?style=for-the-badge&logo=google%20chrome&logoColor=white)](https://pdfx.zip)
-<br>
-<br>
+Download the Windows setup executable from [Releases](https://github.com/imguru18695/XViewer/releases), when available. Install and launch XViewer, then choose **Open documents** or drag PDFs into the window. Use **Ctrl+O** to open and **Ctrl+F** to search. In File Explorer choose **Open with → XViewer**. Windows Default apps lets you select it as your preferred PDF application.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-2e7d32?style=flat-square)](LICENSE)
-&nbsp;
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-555?style=flat-square)](#)
-&nbsp;
-[![Format spec](https://img.shields.io/badge/format-spec-e08a00?style=flat-square)](SPEC.md)
+Double-click a page for full view. Choose **Edit** to highlight, draw a signature, add text, or redact text. Choose **Done**, then **Export PDF** to save a new document. Source files are not automatically overwritten. Export before closing: the workspace does not autosave.
 
-<br>
+![XViewer desktop workspace](docs/screenshots/workspace.png)
 
-<img src="assets/pdfx.png" alt="PDFx viewer" width="820">
+## Features and limits
 
-</div>
+| Feature | Behavior |
+| --- | --- |
+| View and search | Multiple PDFs on a zoomable canvas |
+| Organize | Reorder, move, remove pages; export combined PDF or documents as ZIP |
+| Annotate | Highlights, freehand drawing, added text |
+| Forms | Existing text fields and checkboxes; filled fields may be flattened |
+| OCR | Local scanned-page search; bundled English, German, French, Spanish assets |
+| Redaction | Content removal on export, with raster fallback for unsupported content |
+| Windows integration | Installer, PDF/PDFX associations, single-instance file opening |
 
-<br>
+OCR search does **not** currently add a persistent text layer to exported scans. Redaction has basic regression coverage; complex documents need validation before confidential use. Drawn signatures are visual marks, not certificate signatures. Existing paragraph editing, Office conversion, PDF/A, and password management are outside this release.
 
-## What it is
+PDF processing and OCR run locally. The inherited optional AI assistant requires provider configuration and sends document context to that provider when used. Core tools require no API key. Never commit keys.
 
-PDFx is an open, backwards compatible extension of PDF that bundles many documents into a single file, plus a minimal desktop viewer for macOS, Windows, and Linux.
+## Development
 
-The files produced are fully valid PDFs: open them anywhere and every page shows in sequence. Open them in PDFx and it splits back into the original documents. Plain single PDFs work as they are.
+Requires Node.js 22 or 24 and npm on Windows.
 
-Drag and drop `.pdf` files, images or folders anywhere in the window. Each document renders as a horizontal strip of pages, and documents stack vertically. Reorder or remove them, then **Export PDF** to save the whole collection as one file.
-
-See [SPEC.md](SPEC.md) for the format. It is short: the entire trick is one embedded JSON manifest.
-
-## How to run
-
-Built with Electron, Vite, TypeScript, and React. PDF rendering by [pdf.js](https://mozilla.github.io/pdf.js/), assembly by [pdf-lib](https://pdf-lib.js.org/).
-
-```bash
-yarn              # install
-yarn dev          # run in development
-yarn dev:web      # run on the web
-yarn build:mac    # build:win for windows, build:linux for linux
+```powershell
+npm ci
+npm run dev
+npm test
+npm run build:win
 ```
 
-_The AI assistant needs a provider API key: copy `.dev.vars.example` to `.dev.vars`, and set your key (Google, Anthropic, or OpenAI)._
+Installers appear in `dist/`. After `npm run build`, run `npm run smoke` to launch Electron with a generated PDF and capture screenshots.
+
+## XViewer contributions
+
+- Separate Windows app identity, per-user installer, and PDF associations.
+- Buffer file requests received while the renderer starts.
+- Plain PDF exports omit collection manifests and original document names.
+- Failed form filling stops export rather than silently saving unfilled content.
+- Regression tests, desktop smoke checks, Windows CI, and release automation.
+
+See [architecture](docs/ARCHITECTURE.md), [validation](docs/VALIDATION.md), and [roadmap](docs/ROADMAP.md). This is an early derivative project; the list above distinguishes our changes from inherited functionality.
 
 ## License
 
-MIT
+MIT. Upstream copyright remains with Alex Gounis; see [LICENSE](LICENSE) and [NOTICE](NOTICE). Dependencies retain their own licenses.

@@ -59,7 +59,8 @@ async function extract(pdf: PDFDocumentProxy, pageNumber: number): Promise<FormF
     if (widget.subtype !== 'Widget' || widget.hidden || widget.readOnly) return
     const kind = widgetKind(widget)
     if (!kind || !widget.fieldName || !widget.rect) return
-    const [x1, y1, x2, y2] = viewport.convertToViewportRectangle(widget.rect)
+    const [x1, y1] = viewport.convertToViewportPoint(widget.rect[0], widget.rect[1])
+    const [x2, y2] = viewport.convertToViewportPoint(widget.rect[2], widget.rect[3])
     const width = Math.abs(x2 - x1)
     const height = Math.abs(y2 - y1)
     if (width < 1 || height < 1) return

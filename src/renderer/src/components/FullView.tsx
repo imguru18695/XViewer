@@ -148,7 +148,7 @@ export function FullView({
   const chromeOpacity = s.revealed ? 1 : 0
 
   return (
-    <div className="full-view">
+    <div className="full-view" role="dialog" aria-label="PDF page editor" data-phase={s.phase}>
       <div className="full-backdrop" style={{ opacity: chromeOpacity }} />
       <FullViewPages
         scrollRef={s.scrollRef}

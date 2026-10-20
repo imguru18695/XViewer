@@ -90,7 +90,7 @@ export async function fillFormValues(bytes: Uint8Array, values: FormValues): Pro
         filled.push(field)
       }
     } catch (error) {
-      console.warn(`[pdfx] could not fill form field ${name}:`, error)
+      throw new Error(`Could not fill form field "${name}". Export canceled.`, { cause: error })
     }
   }
   if (filled.length === 0) return bytes
@@ -123,7 +123,9 @@ export async function fillDocSources(
     try {
       filled.set(sourceId, await fillFormValues(bytes, values!))
     } catch (error) {
-      console.warn('[pdfx] form fill failed for a source, exporting unfilled:', error)
+      throw new Error('Could not save form values. Export canceled to prevent data loss.', {
+        cause: error
+      })
     }
   }
   return filled

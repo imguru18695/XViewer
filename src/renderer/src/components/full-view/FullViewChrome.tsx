@@ -66,7 +66,7 @@ export function FullViewChrome({
                 aria-pressed={tool === 'redact'}
                 onClick={() => onToggleTool('redact')}
               >
-                Hide Text
+                Redact
               </button>
               <button className="btn glass" disabled={!canRevert} onClick={onRevert}>
                 Revert

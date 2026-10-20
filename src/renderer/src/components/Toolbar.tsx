@@ -36,7 +36,7 @@ export function Toolbar({
   onExportZip,
   onToggleAi
 }: ToolbarProps): React.JSX.Element {
-  const stars = useGitHubStars(isWeb ? 'AlexandrosGounis/pdfx' : null)
+  const stars = useGitHubStars(isWeb ? 'imguru18695/XViewer' : null)
   return (
     <header className={`toolbar${isMac ? ' mac' : ''}`}>
       <button className="btn glass" onClick={onOpen} disabled={busy}>
@@ -94,10 +94,10 @@ export function Toolbar({
       {isWeb && (
         <a
           className="btn glass"
-          href="https://github.com/AlexandrosGounis/pdfx"
+          href="https://github.com/imguru18695/XViewer"
           target="_blank"
           rel="noreferrer"
-          title="Star pdfx on GitHub"
+          title="XViewer on GitHub"
         >
           <GitHubIcon size={14} />
           Star

@@ -1,5 +1,5 @@
-appId: com.pdfx.app
-productName: PDFx
+appId: io.github.imguru18695.xviewer
+productName: XViewer
 directories:
   buildResources: build
 files:
@@ -14,6 +14,12 @@ files:
   - '!native/**'
   - 'native/build/Release/*.node'
   - '!resources/**'
+  - '!.smoke/**'
+  - '!tests/**'
+  - '!docs/**'
+  - '!.github/**'
+  - '!.audit-local.json'
+  - '!package-lock.json'
 asarUnpack:
   - native/build/Release/*.node
 extraResources:
@@ -22,6 +28,11 @@ extraResources:
   - from: resources/pdf
     to: pdf
 fileAssociations:
+  - ext: pdf
+    name: PDF Document
+    description: PDF document
+    mimeType: application/pdf
+    role: Editor
   - ext: pdfx
     name: PDFX Collection
     description: PDFX multi-document PDF collection
@@ -30,14 +41,17 @@ fileAssociations:
 mac:
   category: public.app-category.productivity
 win:
-  executableName: pdfx
+  target:
+    - target: nsis
+      arch: [x64]
+  executableName: XViewer
 linux:
   target:
     - AppImage
     - deb
     - rpm
   category: Office
-  maintainer: Alex Gounis <gounisalex@gmail.com>
+  maintainer: imguru18695
   synopsis: One file. Many documents. Still a PDF.
   description: An open, backwards-compatible PDF extension that bundles many documents into one valid PDF, plus a minimal desktop viewer that splits it back into the original files.
 deb:
@@ -48,6 +62,10 @@ flatpak:
   runtimeVersion: '23.08'
   baseVersion: '23.08'
 nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  runAfterFinish: false
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}

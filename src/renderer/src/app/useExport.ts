@@ -49,12 +49,15 @@ export function useExport(
         const documents = await Promise.all(
           docs.map(async (doc) => ({ name: doc.name, pages: await preparePages(doc, filled) }))
         )
-        const bytes = await buildPdfx(documents, stripExtension(filename).replace(/\.pdf$/i, ''))
+        const bytes =
+          kind === 'pdf'
+            ? await buildPdf(documents.flatMap((doc) => doc.pages))
+            : await buildPdfx(documents, stripExtension(filename).replace(/\.pdf$/i, ''))
         const saved = await window.api.writeFile(path, bytes)
         flash(`Saved ${saved}`)
       } catch (error) {
         console.error('Export failed', error)
-        flash('Export failed')
+        flash(error instanceof Error ? error.message : 'Export failed')
       } finally {
         setBusy(false)
       }
@@ -85,7 +88,7 @@ export function useExport(
       flash(`Saved ${saved}`)
     } catch (error) {
       console.error('Export failed', error)
-      flash('Export failed')
+      flash(error instanceof Error ? error.message : 'Export failed')
     } finally {
       setBusy(false)
     }

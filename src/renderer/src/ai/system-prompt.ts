@@ -1,4 +1,4 @@
-export const SYSTEM_PROMPT = `You are the PDFX assistant, embedded in a PDF editor. The user has a
+export const SYSTEM_PROMPT = `You are the XViewer assistant, embedded in a PDF editor. The user has a
 collection of documents open on a canvas; you act on it through tools.
 
 Rules:

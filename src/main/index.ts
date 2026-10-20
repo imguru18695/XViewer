@@ -9,7 +9,7 @@ import { buildMenu } from './menu'
 import { registerIpc } from './register-ipc'
 import { registerAssetProtocol, registerAssetSchemePrivileged } from './assets'
 
-app.setName('PDFx')
+app.setName('XViewer')
 
 registerAssetSchemePrivileged()
 
@@ -38,11 +38,13 @@ if (!gotLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    void sendOpenPaths(collectFileArgs(argv.slice(1)))
+    const paths = collectFileArgs(argv.slice(1))
+    if (getRendererReady()) void sendOpenPaths(paths)
+    else pendingOpenPaths.push(...paths)
   })
 
   app.whenReady().then(() => {
-    electronApp.setAppUserModelId('com.pdfx.app')
+    electronApp.setAppUserModelId('io.github.imguru18695.xviewer')
 
     registerAssetProtocol()
 

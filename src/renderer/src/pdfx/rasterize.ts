@@ -18,7 +18,7 @@ export async function rasterizeMarkedPage(
   try {
     return await render(owned ?? entry.source.pdf, entry, marks)
   } finally {
-    await owned?.destroy().catch(() => undefined)
+    await owned?.loadingTask.destroy().catch(() => undefined)
   }
 }
 

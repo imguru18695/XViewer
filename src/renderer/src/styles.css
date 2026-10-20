@@ -1,5 +1,6 @@
 :root {
   color-scheme: dark light;
+  --workspace-bg: #1c1c1e;
 
   --surface: #ffffff;
   --ink: rgba(255, 255, 245, 0.92);
@@ -28,6 +29,7 @@
 
 @media (prefers-color-scheme: light) {
   :root {
+    --workspace-bg: #f7f7f5;
     --surface: #ffffff;
     --ink: #16161a;
     --ink-soft: #55555c;
@@ -63,7 +65,7 @@ body,
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  background: transparent;
+  background: var(--workspace-bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
@@ -1005,6 +1007,7 @@ a.btn {
 }
 
 .full-bar {
+  background: var(--overlay-strong);
   position: absolute;
   top: 0;
   left: 0;

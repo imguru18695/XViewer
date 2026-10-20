@@ -65,6 +65,6 @@ export async function buildOccupancy(bytes: Uint8Array): Promise<PageOccupancy |
   } catch {
     return null
   } finally {
-    await pdf.destroy().catch(() => undefined)
+    await pdf.loadingTask.destroy().catch(() => undefined)
   }
 }

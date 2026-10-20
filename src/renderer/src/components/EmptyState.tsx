@@ -27,9 +27,10 @@ export function EmptyState({ busy, dragging, onOpen }: EmptyStateProps): React.J
             <path d="M5 21h14" />
           </svg>
         </div>
-        <h1>{busy ? 'Loading…' : 'Drop files here'}</h1>
+        <h1>{busy ? 'Loading…' : 'XViewer'}</h1>
+        <p>Drop PDFs here to organize, annotate, and search.</p>
         <button className="btn ghost" onClick={onOpen} disabled={busy}>
-          Browse…
+          Open documents…
         </button>
       </div>
     </div>

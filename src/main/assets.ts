@@ -41,7 +41,11 @@ export function registerAssetProtocol(): void {
     try {
       const data = await readFile(join(root, url.hostname, rel))
       return new Response(new Uint8Array(data), {
-        headers: { 'content-type': contentType(rel) }
+        headers: {
+          'content-type': contentType(rel),
+          'access-control-allow-origin': '*',
+          'cross-origin-resource-policy': 'cross-origin'
+        }
       })
     } catch {
       return new Response('Not found', { status: 404 })

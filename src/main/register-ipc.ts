@@ -4,7 +4,7 @@ import { existsSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { markupToPdf } from './markup'
 import { OpenedFile, IMPORTABLE, readFiles, expandDropPaths } from './file-intake'
-import { clipboardFilePaths } from './clipboard'
+import { clipboardBytes, clipboardFilePaths } from './clipboard'
 import { readResource } from './resource'
 import { getMainWindow, setRendererReady, sendOpenPaths } from './window'
 
@@ -32,13 +32,10 @@ export function registerIpc(getPending: () => string[], clearPending: () => void
     }
   )
 
-  ipcMain.handle('pdfx:read-clipboard-image', () => {
-    const image = clipboard.readImage()
-    return image.isEmpty() ? null : new Uint8Array(image.toPNG())
-  })
+  ipcMain.handle('pdfx:read-clipboard-image', () => clipboardBytes('image/png'))
 
   ipcMain.handle('pdfx:read-clipboard-files', async (): Promise<OpenedFile[]> => {
-    const paths = clipboardFilePaths().filter((p) => IMPORTABLE.test(p) && existsSync(p))
+    const paths = (await clipboardFilePaths()).filter((p) => IMPORTABLE.test(p) && existsSync(p))
     return readFiles(paths)
   })
 
