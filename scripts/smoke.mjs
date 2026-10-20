@@ -70,6 +70,16 @@ try {
   await atPage(2)
   await page.keyboard.press('PageUp')
   await atPage(1)
+  const initialZoom = Number(
+    (await page.getByLabel('Zoom level', { exact: true }).textContent()).replace('%', '')
+  )
+  await page.locator('.full-view').getByTitle('Zoom out', { exact: true }).click()
+  await page.waitForFunction(
+    (z) =>
+      Number(document.querySelector('[aria-label="Zoom level"]').textContent.replace('%', '')) < z,
+    initialZoom
+  )
+  await page.getByRole('button', { name: 'Fit Page', exact: true }).click()
   await page.getByRole('button', { name: 'Fit Width', exact: true }).click()
   await page.keyboard.press('End')
   await atPage(2)

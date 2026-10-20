@@ -70,7 +70,7 @@ export function FullViewPage(props: FullViewPageProps): React.JSX.Element {
         : 'none',
       willChange: 'transform'
     }
-  } else if (isCurrent && (zoomed || view.y !== 0)) {
+  } else if (isCurrent && (view.zoom !== 1 || view.y !== 0)) {
     style = {
       ...style,
       transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`,
@@ -116,7 +116,7 @@ export function FullViewPage(props: FullViewPageProps): React.JSX.Element {
             naturalHeight={p.height}
             interactive={isCurrent && (selectTool === null || isElementTool(selectTool))}
             aboveDraw={isCurrent && selectTool !== null}
-            zoomScale={isCurrent && zoomed ? view.zoom : 1}
+            zoomScale={isCurrent ? view.zoom : 1}
             selectedId={selectedElementId}
             markTool={isCurrent && isMarkTool(selectTool) ? selectTool : null}
             onSelect={onSelectElement}

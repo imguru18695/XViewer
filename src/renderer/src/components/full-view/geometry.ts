@@ -19,7 +19,7 @@ export interface View {
 export type Phase = 'opening' | 'open' | 'closing'
 
 export const isMac = window.api.platform === 'darwin'
-export const MIN_ZOOM = 1
+export const MIN_ZOOM = 0.25
 export const MAX_ZOOM = 8
 export const WHEEL_ZOOM_SPEED = 0.036
 export const ZOOM_STEP = 1.4
